@@ -1,5 +1,7 @@
-# Agendamento de Quadra Esportiva
+# Fernando Miguel Vieira Vidal
 
-- Aluno: Fernando Miguel Vieira Vidal
-- Código Individual: PP-0CPMR56-1JKKJE6
-- Data: 17/09/2026
+## Agendamento de Quadra Esportiva
+
+Código Individual: PP-0CPMR56-1JKKJE6
+
+Data: 17/09/2026
