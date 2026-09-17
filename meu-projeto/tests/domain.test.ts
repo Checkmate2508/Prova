@@ -1,11 +1,28 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { bookingsOnDate, cancelBooking, endTime, getStatus, INITIAL_COURTS, localDate, MAX_DURATION_HOURS, MAX_DURATION_MINUTES, parseStart, sortBookings, validateBooking } from '../src/domain.ts'
+import { bookingsOnDate, cancelBooking, createInitialBookings, endTime, getStatus, INITIAL_COURTS, localDate, MAX_DURATION_HOURS, MAX_DURATION_MINUTES, parseStart, sortBookings, validateBooking } from '../src/domain.ts'
 import type { Booking, BookingDraft } from '../src/domain.ts'
 
 const courts = INITIAL_COURTS
 const now = new Date('2030-06-15T12:00:00')
 const draft: BookingDraft = { courtId: 'court-1', customer: 'Equipe Azul', date: '2030-06-15', time: '14:00', duration: '60' }
+
+test('simulação inicial cobre as quatro situações, com quadras válidas e sem conflitos', () => {
+  for (const time of ['00:00:00', '12:00:00', '23:59:59']) {
+    const reference = new Date(`2030-06-15T${time}`)
+    const items = createInitialBookings(reference)
+    assert.ok(items.length >= 5)
+    assert.equal(new Set(items.map((item) => item.id)).size, items.length)
+    assert.deepEqual(new Set(items.map((item) => getStatus(item, reference))), new Set(['ongoing', 'scheduled', 'completed', 'cancelled']))
+    assert.equal(getStatus(sortBookings(items, courts, 'status', reference)[0], reference), 'ongoing')
+    for (const item of items) {
+      const start = new Date(item.startsAt)
+      assert.deepEqual(validateBooking({ courtId: item.courtId, customer: item.customer, date: localDate(start), time: `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`, duration: String(item.durationMinutes) }, courts, items.filter((other) => other.id !== item.id)), {})
+      assert.ok(Date.parse(item.createdAt) <= start.getTime())
+      if (item.cancellation) assert.ok(item.cancellation.reason.trim())
+    }
+  }
+})
 function booking(time: string, duration = 60, courtId = 'court-1', id = 'booking-1'): Booking {
   return { id, courtId, customer: 'Equipe Azul', startsAt: new Date(`2030-06-15T${time}:00`).toISOString(), durationMinutes: duration, createdAt: now.toISOString(), cancellation: null }
 }

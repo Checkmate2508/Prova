@@ -1,4 +1,4 @@
-import { INITIAL_COURTS, MAX_DURATION_MINUTES } from './domain'
+import { createInitialBookings, INITIAL_COURTS, MAX_DURATION_MINUTES } from './domain'
 import type { Booking, Court } from './domain'
 
 export const STORAGE_KEY = 'arena-agendamentos-v1'
@@ -29,7 +29,11 @@ function isBooking(value: unknown): value is Booking {
 
 export function readData(): AppData {
   const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return { courts: INITIAL_COURTS, bookings: [] }
+  if (!raw) {
+    const initial = { courts: INITIAL_COURTS, bookings: createInitialBookings() }
+    writeData(initial)
+    return initial
+  }
   const parsed: unknown = JSON.parse(raw)
   if (!isRecord(parsed) || parsed.version !== 1 || !Array.isArray(parsed.courts) ||
     !Array.isArray(parsed.bookings) || !parsed.courts.every(isCourt) || !parsed.bookings.every(isBooking)) {

@@ -43,6 +43,20 @@ export const INITIAL_COURTS: Court[] = [
   { id: 'court-3', name: 'Quadra 03', floor: 'Saibro', sport: 'Tênis' },
 ]
 
+export function createInitialBookings(now = new Date()): Booking[] {
+  const reference = new Date(now)
+  reference.setSeconds(0, 0)
+  const at = (minutes: number) => new Date(reference.getTime() + minutes * 60_000).toISOString()
+  const createdAt = at(-24 * 60)
+  return [
+    { id: 'demo-ongoing', courtId: 'court-1', customer: 'Equipe Aurora (simulado)', startsAt: at(-30), durationMinutes: 90, createdAt, cancellation: null },
+    { id: 'demo-scheduled-1', courtId: 'court-1', customer: 'Equipe Horizonte (simulado)', startsAt: at(90), durationMinutes: 120, createdAt, cancellation: null },
+    { id: 'demo-scheduled-2', courtId: 'court-2', customer: 'Equipe Saque Certo (simulado)', startsAt: at(60), durationMinutes: 60, createdAt, cancellation: null },
+    { id: 'demo-completed', courtId: 'court-3', customer: 'Marina e Lucas (simulado)', startsAt: at(-120), durationMinutes: 60, createdAt, cancellation: null },
+    { id: 'demo-cancelled', courtId: 'court-2', customer: 'Equipe União (simulado)', startsAt: at(180), durationMinutes: 90, createdAt, cancellation: { reason: 'Equipe indisponível para a partida (cancelamento simulado).', cancelledAt: at(-60) } },
+  ]
+}
+
 export function localDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
